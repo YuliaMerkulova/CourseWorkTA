@@ -22,7 +22,7 @@ class MyGame(arcade.Window):
         # Создать список спрайтов
         self.player_list = arcade.SpriteList()
         SPRITE_SCALING = 0.07
-        self.owner = arcade.Sprite("resorses/student.png", SPRITE_SCALING)
+        self.owner = arcade.Sprite("resourses/student.png", SPRITE_SCALING)
         self.owner.center_x = 100
         self.owner.center_y = 300
         self.player_list.append(self.owner)
