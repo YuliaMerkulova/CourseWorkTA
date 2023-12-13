@@ -14,6 +14,12 @@ class SpritePosition(enum.Enum):
     ADD_TABLE_CORNER = (444, 420)
 
 
+class KittenPositions(enum.Enum):
+    KITTEN_COUCH = (115, 229)
+    KITTEN_PLAYING_ZONE = (460, 103)
+    KITTEN_EAT = (223, 324)
+    KITTEN_WITH_MOTHER = (336, 224)
+
 class SpriteAngle(enum.Enum):
     BED = 260
 
@@ -30,5 +36,29 @@ class Variables(enum.Enum):
     PRODUCTS = 3
     LOVE = 4
     FUN = 5
+
+
+class KittenStates(enum.Enum):
+    EATING = 0,
+    SLEEPING = 1,
+    WITH_MOTHER = 2,
+    PLAYING_WITH_OWNER = 3,
+    SEARCHING = 4,
+    SUNBEAM = 5,
+    WAITING = 6
+
+
+class PersonStates(enum.Enum):
+    EATING = 0,
+    SLEEPING = 1,
+    WORKING = 2,
+    BUYING_PRODUCTS = 3,
+    PLAYING_WITH_CAT = 4,
+    PLAYING_WITH_KITTEN = 5,
+    FEEDING_CAT = 6,
+    FEEDING_KITTEN = 7,
+    WAITING = 8,
+    WALKING = 9
+
 
 

@@ -55,26 +55,27 @@ class BaseEntity:
         self.sprite = BaseSprite(image, scaling, speed)
         self.position: Optional[SpritePosition] = None
         self.map: Dict[SpritePosition, List[SpritePosition]] = {}
-        self.hunger_indicator = IndicatorBar(SpriteList(), (940, 520))
-        self.hunger_indicator.fullness = 0.5
+        self.current_state = None
+        self.next_state = None
+        self.next_position = None
 
     def set_face_side(self, side: FaceSide = FaceSide.RIGHT):
         self.sprite.face_direction = side
 
-    def set_position(self, position: SpritePosition):
+    def set_position(self, position):
         self.position = position
         self.sprite.position = position.value
 
-    def move_to(self, position: SpritePosition):
+    def move_to(self, position):
         self.position = position
         self.sprite.destination_point = position.value
 
-    def get_position(self) -> Optional[SpritePosition]:
+    def get_position(self) -> Optional:
         if self.sprite.destination_point:
             return None
         return self.position
 
-    def find_path(self, start: SpritePosition, finish: SpritePosition):
+    def find_path(self, start, finish):
         position_queue = collections.deque([(start, [start])])
 
         while position_queue:
@@ -85,11 +86,17 @@ class BaseEntity:
                 if neighbor not in path:
                     position_queue.append((neighbor, path + [neighbor]))
 
-    def set_path(self, path: List[SpritePosition]):
+    def set_path(self, path):
         self.sprite.destination_point = path[0].value
         if len(path) > 1:
             self.sprite.path = list(map(lambda x: x.value, path[1:]))
         self.position = path[-1]
 
     def set_angle(self, angle: SpriteAngle):
+        pass
+
+    def get_state(self):
+        return self.current_state
+
+    def update_indicators(self, person):
         pass
