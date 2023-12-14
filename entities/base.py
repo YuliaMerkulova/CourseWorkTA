@@ -49,7 +49,7 @@ class BaseSprite(Sprite):
                 else:
                     self.path = None
                 return
-            self.destination_point = None
+            else: self.destination_point = None
 
 
 class BaseEntity:
@@ -63,6 +63,8 @@ class BaseEntity:
         self.next_position = None
         self.path: List[SpritePosition] = []
         self.resources: Optional[ResourceBox] = None
+        self.scaling = scaling
+        self.speed = speed
 
     def draw(self):
         self.sprite.draw()

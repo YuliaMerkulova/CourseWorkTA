@@ -34,7 +34,7 @@ class ResourceBox:
 
     def set_resource_value(self, resource: Variables, value: Optional[float] = None, change: Optional[float] = None):
         if resource in self.resources:
-            if value:
+            if value is not None:
                 self.resources[resource].indicator.fullness = value
             elif change:
                 self.resources[resource].indicator.fullness += change

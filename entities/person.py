@@ -40,7 +40,7 @@ class Person(BaseEntity):
         })
 
         self.resources.set_resource_value(Variables.PRODUCTS, 0.5)
-        self.current_state = PersonStates.WAITING
+        self.current_state = PersonStates.SLEEPING
         self.next_state = None
         self.day = {
             PersonStates.SLEEPING: PersonStates.EATING,
@@ -53,6 +53,26 @@ class Person(BaseEntity):
             PersonStates.PLAYING_WITH_CAT: [PersonStates.SLEEPING, PersonStates.BUYING_PRODUCTS],
             PersonStates.BUYING_PRODUCTS: [PersonStates.SLEEPING],
         }
+        #просыпаемся голодные в начале
+        self.resources.set_resource_value(Variables.SATIETY, 0.2)
+        #и без денег
+        self.resources.set_resource_value(Variables.MONEY, 0.1)
+        self.has_called = False
+        self.long_action = 0
+
+    def ready_to_eat(self):
+        return self.current_state == PersonStates.SLEEPING
+
+    def ready_to_sleep(self):
+        return self.current_state in [PersonStates.WORKING, PersonStates.PLAYING_WITH_KITTEN,
+                                      PersonStates.PLAYING_WITH_CAT, PersonStates.BUYING_PRODUCTS]
+
+    def ready_to_work(self):
+        return self.current_state == PersonStates.EATING or self.current_state == PersonStates.FEEDING
+
+    def ready_to_buy_products(self):
+        return self.current_state in [PersonStates.WORKING, PersonStates.PLAYING_WITH_KITTEN,
+                                      PersonStates.PLAYING_WITH_CAT]
 
     def ready_to_play_with_cat(self):
         return self.current_state == PersonStates.FEEDING
@@ -63,28 +83,41 @@ class Person(BaseEntity):
     def ready_to_feed(self):
         return self.current_state == PersonStates.EATING
 
+    def has_food(self):
+        return self.resources.get_resource_value(Variables.PRODUCTS) >= 0.1
+
     def lie_on_bed(self):
         self.sprite.angle = SpriteAngle.PERSON_BED.value
 
+    def busy(self):
+        return self.long_action == 1
+
     def decide_what_do_next(self):
-        if self.current_state != PersonStates.WAITING:
+        if self.long_action == 1:
+            self.long_action += 1
+            self.update_indicators(self)
             return
-        if self.resources.get_resource_value(Variables.SATIETY) <= 0.2:
+        if self.long_action == 2:
+            self.long_action = 0
+        if not self.has_called and self.ready_to_eat() and self.has_food():
             self.next_position = SpritePosition.PERSON_TABLE
             self.current_state = PersonStates.EATING
-        elif self.resources.get_resource_value(Variables.ENERGY) <= 0.2:
-            self.next_position = SpritePosition.PERSON_BED
-            self.current_state = PersonStates.SLEEPING
-        elif self.resources.get_resource_value(Variables.PRODUCTS) <= 0.2:
+        elif not self.has_called and self.ready_to_buy_products() and self.resources.get_resource_value(Variables.PRODUCTS) <= 0.4:
             self.next_position = SpritePosition.PERSON_DOOR
             self.current_state = PersonStates.BUYING_PRODUCTS
-        elif self.resources.get_resource_value(Variables.MONEY) <= 0.2:
+            self.long_action += 1
+        elif not self.has_called and self.ready_to_sleep():
+            self.next_position = SpritePosition.PERSON_BED
+            self.current_state = PersonStates.SLEEPING
+        elif not self.has_called and self.ready_to_work():
             self.current_state = PersonStates.WORKING
             self.next_position = SpritePosition.PERSON_DOOR
-        else:
-            self.current_state = PersonStates.WALKING
-            self.next_position = random.choice([SpritePosition.PERSON_DOOR, SpritePosition.PERSON_BED,
-                                                SpritePosition.PERSON_FRIDGE])
+            self.long_action += 1
+        print("HERE")
+        #elif not self.has_called:
+        #    self.current_state = PersonStates.WALKING
+        #    self.next_position = random.choice([SpritePosition.PERSON_DOOR, SpritePosition.PERSON_BED,
+        #                                        SpritePosition.PERSON_FRIDGE])
 
     def update_indicators(self, person):
         if self.current_state == PersonStates.EATING:
@@ -102,16 +135,19 @@ class Person(BaseEntity):
         if self.current_state == PersonStates.WORKING:
             if self.resources.get_resource_value(Variables.SATIETY) >= 0.1:
                 self.resources.set_resource_value(Variables.SATIETY, change=-0.1)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 0.1:
-                self.resources.set_resource_value(Variables.ENERGY, change=-0.1)
-            self.resources.set_resource_value(Variables.MONEY, 1)
+            if self.resources.get_resource_value(Variables.ENERGY) >= 0.3:
+                self.resources.set_resource_value(Variables.ENERGY, change=-0.3)
+            self.resources.set_resource_value(Variables.MONEY, change=0.1)
 
         if self.current_state == PersonStates.BUYING_PRODUCTS:
             if self.resources.get_resource_value(Variables.SATIETY) >= 0.1:
                 self.resources.set_resource_value(Variables.SATIETY, change=-0.1)
             if self.resources.get_resource_value(Variables.ENERGY) >= 0.1:
                 self.resources.set_resource_value(Variables.ENERGY, change=-0.1)
-            self.resources.set_resource_value(Variables.PRODUCTS, 1)
+            if self.resources.get_resource_value(Variables.MONEY) >= 0.1:
+                self.resources.set_resource_value(Variables.MONEY, change=-0.1)
+            if self.resources.get_resource_value(Variables.PRODUCTS) <= 0.8:
+                self.resources.set_resource_value(Variables.PRODUCTS, change=0.2)
 
         if self.current_state == PersonStates.FEEDING:
             if self.resources.get_resource_value(Variables.SATIETY) >= 0.1:
@@ -122,12 +158,6 @@ class Person(BaseEntity):
                 self.resources.set_resource_value(Variables.PRODUCTS, change=-0.1)
 
         if self.current_state in [PersonStates.PLAYING_WITH_CAT, PersonStates.PLAYING_WITH_KITTEN]:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 0.1:
-                self.resources.set_resource_value(Variables.SATIETY, change=-0.1)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 0.1:
-                self.resources.set_resource_value(Variables.ENERGY, change=-0.1)
-
-        if self.current_state == PersonStates.WALKING:
             if self.resources.get_resource_value(Variables.SATIETY) >= 0.1:
                 self.resources.set_resource_value(Variables.SATIETY, change=-0.1)
             if self.resources.get_resource_value(Variables.ENERGY) >= 0.1:
