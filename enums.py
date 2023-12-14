@@ -18,6 +18,14 @@ class SpritePosition(enum.Enum):
     KITTEN_EAT = (223, 324)
     KITTEN_WITH_MOTHER = (336, 224)
 
+    CAT_COUCH = (211, 190)
+    CAT_EAT = (223, 318)
+    CAT_WITH_KITTEN = (370, 216)
+    CAT_PLAYING_ZONE = (460, 103)
+    CAT_WINDOW = (375, 422)
+    CAT_BIRD = (578, 131)
+    CAT_FRIDGE = (302, 349)
+
 
 class SpriteAngle(enum.Enum):
     DEFAULT = 0
@@ -48,6 +56,16 @@ class KittenStates(enum.Enum):
     WAITING = 6
 
 
+class CatStates(enum.Enum):
+    EATING = 0
+    SLEEPING = 1
+    WITH_KITTEN = 2
+    PLAYING_WITH_OWNER = 3
+    WATCHING_WINDOW = 4
+    CATCHING_BIRD = 5
+    SEARCHING = 6
+
+
 class PersonStates(enum.Enum):
     EATING = 0
     SLEEPING = 1
@@ -56,5 +74,3 @@ class PersonStates(enum.Enum):
     PLAYING_WITH_CAT = 4
     PLAYING_WITH_KITTEN = 5
     FEEDING = 6
-    WAITING = 7  # TODO: remove
-    WALKING = 8  # TODO: remove
