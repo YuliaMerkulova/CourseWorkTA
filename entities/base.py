@@ -3,6 +3,7 @@ import math
 from abc import abstractmethod
 from typing import Tuple, Optional, List, Dict
 
+import arcade
 from arcade import Sprite, load_texture, SpriteList
 
 from elements import IndicatorBar
@@ -15,14 +16,18 @@ def load_texture_pair(filename):
 
 
 class BaseSprite(Sprite):
-    def __init__(self, image: str, scaling: float, speed: float, start_side: FaceSide = FaceSide.LEFT):
+    def __init__(self, image: str, scaling: float, speed: float, start_side: FaceSide, angle):
         super().__init__(image, scaling)
+        self.base_scale = scaling
+        self.base_texture = load_texture(image)
+        self.base_angle = angle
         self.face_direction = start_side
         self.sprite_textures = load_texture_pair(image)
         self.texture = self.sprite_textures[start_side.value]
         self.destination_point = None
         self.speed = speed
         self.path = None
+        self.position_states = {}
 
     def update(self, delta_time: float = 1 / 60):
         if not self.destination_point:
@@ -49,19 +54,34 @@ class BaseSprite(Sprite):
                 else:
                     self.path = None
                 return
-            else: self.destination_point = None
+            if self.destination_point in self.position_states:
+                self.position_states[self.destination_point].set_state(self)
+            self.destination_point = None
+
+    def move(self, path: List[Tuple[float, float]]):
+        self.reset()
+        self.destination_point = path[0]
+        self.path = path[1:]
+
+    def reset(self):
+        self.angle = self.base_angle
+        self.texture = self.base_texture
+        self.scale = self.scale
+        self.visible = True
+
+    def set_state(self, position: Tuple[float, float]):
+        if position in self.position_states:
+            self.position_states[position].set_state(self)
 
 
 class BaseEntity:
-    def __init__(self, image: str, scaling: float, speed: float):
-        self.sprite = BaseSprite(image, scaling, speed)
+    def __init__(self, image: str, scaling: float, speed: float, angle: float = 0,
+                 start_side: FaceSide = FaceSide.LEFT):
+        self.sprite = BaseSprite(image, scaling, speed, start_side, angle)
         self.position: Optional[SpritePosition] = None
-        self.position_angles: Dict[SpritePosition, SpriteAngle] = {}
         self.map: Dict[SpritePosition, List[SpritePosition]] = {}
         self.current_state = None
-        self.next_state = None
         self.next_position = None
-        self.path: List[SpritePosition] = []
         self.resources: Optional[ResourceBox] = None
         self.scaling = scaling
         self.speed = speed
@@ -70,34 +90,24 @@ class BaseEntity:
         self.sprite.draw()
         if self.resources:
             self.resources.draw()
+        arcade.draw_text(f'Статус: {self.current_state.value}', self.resources.position[0] - 10,
+                         self.resources.position[1] - len(self.resources.resources) * 40 + 10, arcade.color.BLACK,
+                         font_size=11)
 
     def update(self):
-        if self.sprite.destination_point is None:
-            if self.path:
-                self.sprite.destination_point = self.path[0].value
-                if len(self.path) > 1:
-                    self.path = self.path[1:]
-                else:
-                    self.path = None
-            elif self.position in self.position_angles:
-                self.set_angle(self.position_angles[self.position])
         self.sprite.update()
-
-    def set_face_side(self, side: FaceSide = FaceSide.RIGHT):
-        self.sprite.face_direction = side
-
-    def set_angle(self, angle: SpriteAngle):
-        self.sprite.angle = angle.value
 
     def set_position(self, position):
         self.position = position
         self.sprite.position = position.value
 
+    def is_moving(self):
+        return self.sprite.destination_point is not None
+
     def move_to(self, position: SpritePosition):
         if self.position == position:
             return
-        self.set_angle(SpriteAngle.DEFAULT)
-        self.path = self.find_path(self.position, position)[1:]
+        self.sprite.move(list(map(lambda x: x.value, self.find_path(self.position, position))))
         self.position = position
 
     def get_position(self) -> Optional[SpritePosition]:

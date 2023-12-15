@@ -6,11 +6,11 @@ class SpritePosition(enum.Enum):
     PERSON_FRIDGE = (302, 403)
     PERSON_BED = (708, 380)
     PERSON_TABLE = (400, 359)
-    PERSON_ANIMAL_FOOD = (226, 349)
+    PERSON_ANIMAL_FOOD = (246, 359)
     PERSON_PLAYING_ZONE = (509, 131)
     PERSON_ADD_ROOM_DOOR = (599, 283)
     PERSON_ADD_WINDOW = (398, 456)
-    PERSON_ADD_CENTER = (408, 248)
+    PERSON_ADD_CENTER = (408, 298)
     PERSON_ADD_TABLE_CORNER = (444, 420)
 
     KITTEN_COUCH = (115, 229)
@@ -23,7 +23,7 @@ class SpritePosition(enum.Enum):
     CAT_WITH_KITTEN = (370, 216)
     CAT_PLAYING_ZONE = (460, 103)
     CAT_WINDOW = (375, 422)
-    CAT_BIRD = (578, 131)
+    CAT_BIRD = (578, 131)  # TODO: нужно ли это после добавления мыши?
     CAT_FRIDGE = (302, 349)
 
 
@@ -47,30 +47,29 @@ class Variables(enum.Enum):
 
 
 class KittenStates(enum.Enum):
-    EATING = 0
-    SLEEPING = 1
-    WITH_MOTHER = 2
-    PLAYING_WITH_OWNER = 3
-    SEARCHING = 4
-    SUNBEAM = 5
-    WAITING = 6
+    EATING = 'Ест'
+    SLEEPING = 'Спит'
+    WITH_MOTHER = 'С мамой'
+    PLAYING_WITH_OWNER = 'Играет с хозяином'
+    SEARCHING = 'Гуляет'
+    SUNBEAM = 'Ловит зайчика'
 
 
 class CatStates(enum.Enum):
-    EATING = 0
-    SLEEPING = 1
-    WITH_KITTEN = 2
-    PLAYING_WITH_OWNER = 3
-    WATCHING_WINDOW = 4
-    CATCHING_BIRD = 5
-    SEARCHING = 6
+    EATING = 'Ест'
+    SLEEPING = 'Спит'
+    WITH_KITTEN = 'С котёнком'
+    PLAYING_WITH_OWNER = 'Играет с хозяином'
+    WATCHING_WINDOW = 'Смотрит в окно'
+    CATCHING_MOUSE = 'Ловит мышь'
+    SEARCHING = 'Гуляет'
 
 
 class PersonStates(enum.Enum):
-    EATING = 0
-    SLEEPING = 1
-    WORKING = 2
-    BUYING_PRODUCTS = 3
-    PLAYING_WITH_CAT = 4
-    PLAYING_WITH_KITTEN = 5
-    FEEDING = 6
+    EATING = 'Ест'
+    SLEEPING = 'Спит'
+    WORKING = 'Работает'
+    BUYING_PRODUCTS = 'Покупает продукты'
+    PLAYING_WITH_CAT = 'Играет с кошкой'
+    PLAYING_WITH_KITTEN = 'Играет с котёнком'
+    FEEDING = 'Кормит животных'
