@@ -50,7 +50,7 @@ class MyGame(arcade.Window):
             # self.kitten.sprite.destination_point = x, y
         elif button == arcade.MOUSE_BUTTON_LEFT and not self.turn.visible:
             self.kitten.decide_what_do_next(person=self.person, cat=self.cat)
-            self.cat.decide_what_do_next(self.person)
+            self.cat.decide_what_do_next(self.person, self.kitten)
             self.person.decide_what_do_next()
             print("CURRENT PERSON STATE: ", self.person.current_state)
             print("CURRENT KITTEN STATE: ", self.kitten.current_state)
@@ -71,13 +71,13 @@ class MyGame(arcade.Window):
 
         if self.end_turn:
             self.timer += 1
-            if self.timer == 30:
+            if self.timer == 40:
                 print("dest points: ", self.person.sprite.destination_point, self.kitten.sprite.destination_point)
                 self.end_turn = False
                 self.turn.visible = False
                 self.timer = 0
                 self.kitten.update_indicators(self.person)
-                self.person.update_indicators(self.person)
+                self.person.update_indicators(self.person, eat=self.kitten.current_state.value == self.cat.current_state.value)
                 self.cat.update_indicators(self.person)
                 self.kitten.running_for_beam = None
                 self.cat.mouse.visible = False

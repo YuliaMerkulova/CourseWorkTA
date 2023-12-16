@@ -3,7 +3,9 @@ import random
 import arcade
 
 from elements.resource_box import ResourceBox
-from . import Person, Cat
+from .person import Person
+from .cat import Cat
+
 from .base import BaseEntity
 from enums import SpritePosition, KittenStates, PersonStates, Variables, CatStates
 
@@ -128,5 +130,5 @@ class Kitten(BaseEntity):
             if self.resources.get_resource_value(Variables.ENERGY) >= 10:
                 self.resources.set_resource_value(Variables.ENERGY, change=-10)
             self.resources.set_resource_value(Variables.LOVE, 100)
-            if self.resources.get_resource_value(Variables.FUN) >= 25:
-                self.resources.set_resource_value(Variables.FUN, change=-25)
+            if self.resources.get_resource_value(Variables.FUN) <= 100:
+                self.resources.set_resource_value(Variables.FUN, change=5)
