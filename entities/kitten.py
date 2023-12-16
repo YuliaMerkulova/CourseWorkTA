@@ -119,10 +119,8 @@ class Kitten(BaseEntity):
                 self.resources.set_resource_value(Variables.ENERGY, change=-10)
             if self.resources.get_resource_value(Variables.LOVE) >= 10:
                 self.resources.set_resource_value(Variables.LOVE, change=-10)
-            if self.resources.get_resource_value(Variables.FUN) >= 5:
-                self.resources.set_resource_value(Variables.FUN, change=-5)
-            else:
-                self.resources.set_resource_value(Variables.FUN, 0)
+
+            self.resources.set_resource_value(Variables.FUN, change=5)
             return
         if self.current_state == KittenStates.WITH_MOTHER:
             if self.resources.get_resource_value(Variables.SATIETY) >= 20:
