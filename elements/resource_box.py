@@ -25,16 +25,16 @@ class ResourceBox:
         self.resources.clear()
         for index, pair in enumerate(resources.items()):
             self.resources[pair[0]] = Resource(**pair[1], position=(self.position[0] + 40,
-                                                                    self.position[1] + 10 - index * 30),
+                                                                    self.position[1] + 10 - index * 40),
                                                sprite_list=self.sprite_list)
 
     def get_resource_value(self, resource: Variables):
         if resource in self.resources:
-            return self.resources[resource].indicator.fullness
+            return self.resources[resource].value
 
     def set_resource_value(self, resource: Variables, value: Optional[float] = None, change: Optional[float] = None):
         if resource in self.resources:
             if value is not None:
-                self.resources[resource].indicator.fullness = value
+                self.resources[resource].value = value
             elif change:
-                self.resources[resource].indicator.fullness += change
+                self.resources[resource].value += change
