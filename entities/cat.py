@@ -3,8 +3,8 @@ import random
 from arcade import Sprite
 
 from elements.resource_box import ResourceBox
-from enums import Variables, SpritePosition, CatStates, PersonStates
-from . import Person
+from enums import Variables, SpritePosition, CatStates, PersonStates, KittenStates
+from .person import Person
 from .base import BaseEntity
 
 
@@ -73,11 +73,7 @@ class Cat(BaseEntity):
                 self.resources.set_resource_value(Variables.SATIETY, value=0)
             if self.resources.get_resource_value(Variables.ENERGY) >= 10:
                 self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            if self.resources.get_resource_value(Variables.FUN) >= 5:
-                # TODO: Тут надо делать + наверное, иначе веселье в 0 уходит. Ну и 5 как-то мало
-                self.resources.set_resource_value(Variables.FUN, change=-5)
-            else:
-                self.resources.set_resource_value(Variables.FUN, 0)
+            self.resources.set_resource_value(Variables.FUN, change=10)
             return
         if self.current_state == CatStates.WITH_KITTEN:
             if self.resources.get_resource_value(Variables.SATIETY) >= 20:
@@ -89,22 +85,31 @@ class Cat(BaseEntity):
             else:
                 self.resources.set_resource_value(Variables.FUN, value=100)
 
-    def decide_what_do_next(self, person: Person):
+    def decide_what_do_next(self, person: Person, kitten):
         print("CAT PERSON CAN FEED?", person.ready_to_feed())
         print("CAT PERSON CAN PLAY?", person.ready_to_play_with_cat())
         if person.has_called and person.current_state == PersonStates.FEEDING:
             return
-        if random.randint(1, 10) >= 8 and self.current_state != CatStates.WATCHING_WINDOW:
+        if not self.has_called and random.randint(1, 10) >= 8:
             # TODO: Юле провалидировать условие + поправить свой граф
-            self.current_state = CatStates.CATCHING_MOUSE
             self.mouse.position = (random.randint(176, 456), random.randint(160, 270)) if random.randint(0, 1) else \
                 (random.randint(389, 629), random.randint(88, 220))
+            if self.current_state == CatStates.WATCHING_WINDOW:
+                self.sprite.move([SpritePosition.CAT_FRIDGE.value,
+                                  (self.mouse.position[0] +
+                                   (-50 if self.mouse.position[0] > self.sprite.position[0] else 50),
+                                   self.mouse.position[1])])
+                self.position = SpritePosition.CAT_FRIDGE
+            else:
+                self.sprite.destination_point = (self.mouse.position[0] +
+                                                 (-50 if self.mouse.position[0] > self.sprite.position[0] else 50),
+                                                 self.mouse.position[1])
+            self.current_state = CatStates.CATCHING_MOUSE
             self.mouse.visible = True
-            self.sprite.destination_point = (self.mouse.position[0] +
-                                             (-50 if self.mouse.position[0] > self.sprite.position[0] else 50),
-                                             self.mouse.position[1])
+
         elif not self.has_called and self.resources.get_resource_value(
-                Variables.SATIETY) <= 40 and person.ready_to_feed() and not person.busy() and person.has_food():
+                Variables.SATIETY) <= 40 and (person.ready_to_feed() or kitten.current_state == KittenStates.EATING) \
+                and not person.busy() and person.has_food() and person.has_products():
             self.next_position = SpritePosition.CAT_EAT
             person.next_position = SpritePosition.PERSON_ANIMAL_FOOD
             self.current_state = CatStates.EATING
@@ -114,11 +119,11 @@ class Cat(BaseEntity):
             self.next_position = SpritePosition.CAT_COUCH
             self.current_state = CatStates.SLEEPING
         elif not self.has_called and self.resources.get_resource_value(
-                Variables.FUN) <= 30 and person.ready_to_play_with_kitten() and not person.busy():
+                Variables.FUN) <= 100 and person.ready_to_play_with_kitten() and not person.busy():
             self.next_position = SpritePosition.CAT_PLAYING_ZONE
             person.next_position = SpritePosition.PERSON_PLAYING_ZONE
             self.current_state = CatStates.PLAYING_WITH_OWNER
-            person.current_state = PersonStates.PLAYING_WITH_KITTEN
+            person.current_state = PersonStates.PLAYING_WITH_CAT
             person.has_called = True
         elif not self.has_called:
             self.next_position = SpritePosition.CAT_WINDOW
