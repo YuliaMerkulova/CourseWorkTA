@@ -46,29 +46,29 @@ class Cat(BaseEntity):
     def update_indicators(self, person):
         if self.current_state == CatStates.EATING:
             self.resources.set_resource_value(Variables.SATIETY, 100)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            if self.resources.get_resource_value(Variables.ENERGY) >= 15:
+                self.resources.set_resource_value(Variables.ENERGY, change=-15)
             if self.resources.get_resource_value(Variables.FUN) >= 25:
                 self.resources.set_resource_value(Variables.FUN, change=-25)
             person.resources.set_resource_value(Variables.PRODUCTS, change=-10)
             return
         if self.current_state == CatStates.SLEEPING:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            if self.resources.get_resource_value(Variables.SATIETY) >= 15:
+                self.resources.set_resource_value(Variables.SATIETY, change=-15)
             self.resources.set_resource_value(Variables.ENERGY, 100)
             if self.resources.get_resource_value(Variables.FUN) >= 25:
                 self.resources.set_resource_value(Variables.FUN, change=-25)
             return
         if self.current_state == CatStates.PLAYING_WITH_OWNER:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            if self.resources.get_resource_value(Variables.SATIETY) >= 15:
+                self.resources.set_resource_value(Variables.SATIETY, change=-15)
             if self.resources.get_resource_value(Variables.ENERGY) >= 10:
                 self.resources.set_resource_value(Variables.ENERGY, change=-10)
             self.resources.set_resource_value(Variables.FUN, 100)
             return
         if self.current_state in [CatStates.WATCHING_WINDOW, CatStates.CATCHING_MOUSE]:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            if self.resources.get_resource_value(Variables.SATIETY) >= 15:
+                self.resources.set_resource_value(Variables.SATIETY, change=-15)
             else:
                 self.resources.set_resource_value(Variables.SATIETY, value=0)
             if self.resources.get_resource_value(Variables.ENERGY) >= 10:
@@ -76,8 +76,8 @@ class Cat(BaseEntity):
             self.resources.set_resource_value(Variables.FUN, change=10)
             return
         if self.current_state == CatStates.WITH_KITTEN:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            if self.resources.get_resource_value(Variables.SATIETY) >= 15:
+                self.resources.set_resource_value(Variables.SATIETY, change=-15)
             if self.resources.get_resource_value(Variables.ENERGY) >= 10:
                 self.resources.set_resource_value(Variables.ENERGY, change=-10)
             if self.resources.get_resource_value(Variables.FUN) <= 75:
