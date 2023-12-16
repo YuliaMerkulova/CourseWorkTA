@@ -39,16 +39,19 @@ class Kitten(BaseEntity):
         # самое важное еда, сон, любовь, развлечение
         print("KITTEN PERSON CAN FEED?", person.ready_to_feed())
         print("KITTEN PERSON CAN PLAY?", person.ready_to_play_with_kitten())
-        if random.randint(1, 10) >= 8:
-            self.current_state = KittenStates.SUNBEAM
-            self.running_for_beam = (random.randint(176, 456), random.randint(160, 298))
-            self.sprite.destination_point = self.running_for_beam
-        elif self.resources.get_resource_value(Variables.SATIETY) <= 40 and person.ready_to_feed() and not person.busy() and person.has_food():
+        if self.resources.get_resource_value(Variables.SATIETY) <= 40 and person.ready_to_feed() and \
+                not person.busy() and person.has_food() and person.has_products():
             self.next_position = SpritePosition.KITTEN_EAT
-            person.next_position = SpritePosition.PERSON_ANIMAL_FOOD
             self.current_state = KittenStates.EATING
+            cat.next_position = SpritePosition.CAT_EAT
+            cat.current_state = CatStates.EATING
+            person.next_position = SpritePosition.PERSON_ANIMAL_FOOD
             person.current_state = PersonStates.FEEDING
             person.has_called = True
+        elif random.randint(1, 10) >= 8:
+            self.current_state = KittenStates.SUNBEAM
+            self.running_for_beam = (random.randint(176, 456), random.randint(170, 298))
+            self.sprite.destination_point = self.running_for_beam
         elif self.resources.get_resource_value(Variables.ENERGY) <= 40:
             self.next_position = SpritePosition.KITTEN_COUCH
             self.current_state = KittenStates.SLEEPING

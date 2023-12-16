@@ -23,7 +23,6 @@ class SpritePosition(enum.Enum):
     CAT_WITH_KITTEN = (370, 216)
     CAT_PLAYING_ZONE = (460, 103)
     CAT_WINDOW = (375, 422)
-    CAT_BIRD = (578, 131)  # TODO: нужно ли это после добавления мыши?
     CAT_FRIDGE = (302, 349)
 
 

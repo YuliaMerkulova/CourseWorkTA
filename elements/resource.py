@@ -11,7 +11,6 @@ class Resource:
 
     def __init__(self, icon: str, name: str, position: Tuple[float, float], sprite_list: SpriteList,
                  scaling: float = 0.07):
-        # TODO: добавить max value и управлять значением в заданном диапазоне
         self.icon_texture = arcade.load_texture(icon)
         self.scaling = scaling
         self.position = position
@@ -25,10 +24,8 @@ class Resource:
 
     @value.setter
     def value(self, new_value: float) -> None:
-        if not 0 <= new_value <= 100:
-            raise ValueError(f"Resource value must be between 0 and 100, got {new_value}")
-        self._value = new_value
-        self.indicator.fullness = new_value / 100
+        self._value = new_value if new_value <= 100 else 100
+        self.indicator.fullness = self._value / 100
 
     def draw(self):
         arcade.draw_scaled_texture_rectangle(self.position[0], self.position[1], self.icon_texture, self.scaling)
