@@ -42,7 +42,7 @@ class Kitten(BaseEntity):
         print("KITTEN PERSON CAN FEED?", person.ready_to_feed())
         print("KITTEN PERSON CAN PLAY?", person.ready_to_play_with_kitten())
         if self.resources.get_resource_value(Variables.SATIETY) <= 40 and person.ready_to_feed() and \
-                not person.busy() and person.has_food() and person.has_products():
+                person.has_food() and person.has_products():
             self.next_position = SpritePosition.KITTEN_EAT
             self.current_state = KittenStates.EATING
             cat.next_position = SpritePosition.CAT_EAT
@@ -57,8 +57,7 @@ class Kitten(BaseEntity):
         elif self.resources.get_resource_value(Variables.ENERGY) <= 40:
             self.next_position = SpritePosition.KITTEN_COUCH
             self.current_state = KittenStates.SLEEPING
-        elif self.resources.get_resource_value(Variables.FUN) <= 30 and person.ready_to_play_with_kitten() and \
-                not person.busy():
+        elif self.resources.get_resource_value(Variables.FUN) <= 30 and person.ready_to_play_with_kitten():
             self.next_position = SpritePosition.KITTEN_PLAYING_ZONE
             person.next_position = SpritePosition.PERSON_PLAYING_ZONE
             self.current_state = KittenStates.PLAYING_WITH_OWNER
@@ -84,49 +83,31 @@ class Kitten(BaseEntity):
     def update_indicators(self, person: Person):
         if self.current_state == KittenStates.EATING:
             self.resources.set_resource_value(Variables.SATIETY, 100)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            if self.resources.get_resource_value(Variables.LOVE) >= 10:
-                self.resources.set_resource_value(Variables.LOVE, change=-10)
-            if self.resources.get_resource_value(Variables.FUN) >= 25:
-                self.resources.set_resource_value(Variables.FUN, change=-25)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.LOVE, change=-10)
+            self.resources.set_resource_value(Variables.FUN, change=-25)
             person.resources.set_resource_value(Variables.PRODUCTS, change=-10)
             return
         if self.current_state == KittenStates.SLEEPING:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            self.resources.set_resource_value(Variables.SATIETY, change=-20)
             self.resources.set_resource_value(Variables.ENERGY, 100)
-            if self.resources.get_resource_value(Variables.LOVE) >= 10:
-                self.resources.set_resource_value(Variables.LOVE, change=-10)
-            if self.resources.get_resource_value(Variables.FUN) >= 25:
-                self.resources.set_resource_value(Variables.FUN, change=-25)
+            self.resources.set_resource_value(Variables.LOVE, change=-10)
+            self.resources.set_resource_value(Variables.FUN, change=-25)
             return
         if self.current_state == KittenStates.PLAYING_WITH_OWNER:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            if self.resources.get_resource_value(Variables.LOVE) >= 10:
-                self.resources.set_resource_value(Variables.LOVE, change=-10)
+            self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.LOVE, change=-10)
             self.resources.set_resource_value(Variables.FUN, 100)
             return
         if self.current_state in [KittenStates.SEARCHING, KittenStates.SUNBEAM]:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
-            else:
-                self.resources.set_resource_value(Variables.SATIETY, value=0)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            if self.resources.get_resource_value(Variables.LOVE) >= 10:
-                self.resources.set_resource_value(Variables.LOVE, change=-10)
-
+            self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.LOVE, change=-10)
             self.resources.set_resource_value(Variables.FUN, change=5)
             return
         if self.current_state == KittenStates.WITH_MOTHER:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 20:
-                self.resources.set_resource_value(Variables.SATIETY, change=-20)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.SATIETY, change=-20)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
             self.resources.set_resource_value(Variables.LOVE, 100)
-            if self.resources.get_resource_value(Variables.FUN) <= 100:
-                self.resources.set_resource_value(Variables.FUN, change=5)
+            self.resources.set_resource_value(Variables.FUN, change=5)

@@ -59,7 +59,6 @@ class Person(BaseEntity):
         self.resources.set_resource_value(Variables.SATIETY, 20)
         self.resources.set_resource_value(Variables.MONEY, 10)
         self.has_called = False
-        self.long_action = 0
 
     def ready_to_eat(self):
         return self.current_state == PersonStates.SLEEPING
@@ -83,16 +82,13 @@ class Person(BaseEntity):
         return self.current_state == PersonStates.FEEDING or self.current_state == PersonStates.WORKING
 
     def ready_to_feed(self):
-        return self.current_state == PersonStates.EATING
+        return self.current_state == PersonStates.EATING or self.current_state == PersonStates.BUYING_PRODUCTS
 
     def has_food(self):
         return self.resources.get_resource_value(Variables.PRODUCTS) >= 10
 
     def lie_on_bed(self):
         self.sprite.angle = SpriteAngle.PERSON_BED.value
-
-    def busy(self):
-        return self.long_action == 1
 
     def need_sleep(self):
         return self.resources.get_resource_value(Variables.ENERGY) < 70
@@ -106,85 +102,54 @@ class Person(BaseEntity):
     def need_products(self):
         return self.resources.get_resource_value(Variables.PRODUCTS) <= 30
 
+    def no_energy(self):
+        return self.resources.get_resource_value(Variables.ENERGY) <= 10 and self.current_state == PersonStates.FEEDING
+
     def decide_what_do_next(self):
-        if not self.has_called and self.ready_to_buy_products() and self.has_money() and self.need_products():
+        if self.ready_to_buy_products() and self.has_money() and self.need_products():
             self.next_position = SpritePosition.PERSON_DOOR
             self.current_state = PersonStates.BUYING_PRODUCTS
-        elif not self.has_called and self.ready_to_sleep() and self.has_food() and self.need_sleep():
+        elif not self.has_called and self.has_food() and \
+                (self.ready_to_sleep() and self.need_sleep() or self.no_energy()):
             self.next_position = SpritePosition.PERSON_BED
             self.current_state = PersonStates.SLEEPING
-        elif not self.has_called and self.ready_to_eat() and self.has_food():
+        elif self.ready_to_eat() and self.has_food():
             self.next_position = SpritePosition.PERSON_TABLE
             self.current_state = PersonStates.EATING
         elif self.has_called and self.has_products() and self.ready_to_feed() and self.has_food():
             self.next_position = SpritePosition.PERSON_ANIMAL_FOOD
             self.current_state = PersonStates.FEEDING
-        elif not self.has_called and self.ready_to_work() and self.has_called:
+        elif self.ready_to_work() and self.has_called:
             return
-        elif not self.has_called and self.ready_to_work():
+        elif self.ready_to_work():
             self.next_position = SpritePosition.PERSON_DOOR
             self.current_state = PersonStates.WORKING
-        # if self.long_action == 1:
-        #     self.long_action += 1
-        #     self.update_indicators(self)
-        #     return
-        # if self.long_action == 2:
-        #     self.long_action = 0
-        # if not self.has_called and self.ready_to_eat() and self.has_food():
-        #     self.next_position = SpritePosition.PERSON_TABLE
-        #     self.current_state = PersonStates.EATING
-        # elif not self.has_called and self.ready_to_buy_products() and \
-        #         self.resources.get_resource_value(Variables.PRODUCTS) <= 40:
-        #     self.next_position = SpritePosition.PERSON_DOOR
-        #     self.current_state = PersonStates.BUYING_PRODUCTS
-        #     self.long_action += 1
-        # elif not self.has_called and self.ready_to_sleep():
-        #     self.next_position = SpritePosition.PERSON_BED
-        #     self.current_state = PersonStates.SLEEPING
-        # elif not self.has_called and self.ready_to_work():
-        #     self.current_state = PersonStates.WORKING
-        #     self.next_position = SpritePosition.PERSON_DOOR
-        #     self.long_action += 1
 
     def update_indicators(self, person, *args, **kwargs):
         if self.current_state == PersonStates.EATING:
             self.resources.set_resource_value(Variables.SATIETY, 100)
-            if abs(self.resources.get_resource_value(Variables.ENERGY)) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            if abs(self.resources.get_resource_value(Variables.PRODUCTS)) >= 10:
-                self.resources.set_resource_value(Variables.PRODUCTS, change=-10)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.PRODUCTS, change=-10)
             return
         if self.current_state == PersonStates.SLEEPING:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 10:
-                self.resources.set_resource_value(Variables.SATIETY, change=-10)
+            self.resources.set_resource_value(Variables.SATIETY, change=-10)
             self.resources.set_resource_value(Variables.ENERGY, change=30)
             return
         if self.current_state == PersonStates.WORKING:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 10:
-                self.resources.set_resource_value(Variables.SATIETY, change=-10)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 30:
-                self.resources.set_resource_value(Variables.ENERGY, change=-30)
+            self.resources.set_resource_value(Variables.SATIETY, change=-10)
+            self.resources.set_resource_value(Variables.ENERGY, change=-30)
             self.resources.set_resource_value(Variables.MONEY, change=50)
             return
         if self.current_state == PersonStates.BUYING_PRODUCTS:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 10:
-                self.resources.set_resource_value(Variables.SATIETY, change=-10)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 20:
-                self.resources.set_resource_value(Variables.ENERGY, change=-20)
-            if self.resources.get_resource_value(Variables.MONEY) >= 20:
-                self.resources.set_resource_value(Variables.MONEY, change=-20)
+            self.resources.set_resource_value(Variables.SATIETY, change=-10)
+            self.resources.set_resource_value(Variables.ENERGY, change=-20)
+            self.resources.set_resource_value(Variables.MONEY, change=-20)
             self.resources.set_resource_value(Variables.PRODUCTS, change=50)
             return
         if self.current_state == PersonStates.FEEDING:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 10:
-                self.resources.set_resource_value(Variables.SATIETY, change=-10)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
-            #if self.resources.get_resource_value(Variables.PRODUCTS) >= 10 * (kwargs['eat'] + 1):
-            #    self.resources.set_resource_value(Variables.PRODUCTS, change=-10 * (kwargs['eat'] + 1))
+            self.resources.set_resource_value(Variables.SATIETY, change=-10)
+            self.resources.set_resource_value(Variables.ENERGY, change=-10)
             return
         if self.current_state in [PersonStates.PLAYING_WITH_CAT, PersonStates.PLAYING_WITH_KITTEN]:
-            if self.resources.get_resource_value(Variables.SATIETY) >= 10:
-                self.resources.set_resource_value(Variables.SATIETY, change=-10)
-            if self.resources.get_resource_value(Variables.ENERGY) >= 10:
-                self.resources.set_resource_value(Variables.ENERGY, change=-10)
+            self.resources.set_resource_value(Variables.SATIETY, change=-10)
+            self.resources.set_resource_value(Variables.ENERGY, change=-20)

@@ -24,7 +24,12 @@ class Resource:
 
     @value.setter
     def value(self, new_value: float) -> None:
-        self._value = new_value if new_value <= 100 else 100
+        if new_value > 100:
+            self._value = 100
+        elif new_value < 0:  # TODO: обход падений с нижней границей ресурса
+            self._value = 0
+        else:
+            self._value = new_value
         self.indicator.fullness = self._value / 100
 
     def draw(self):
